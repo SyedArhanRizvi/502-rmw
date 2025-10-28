@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ritz Media World | Premium Advertising Agency</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome CDN -->
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.min.js"></script>
+    <style>
+      :root {
+        --primary: #0a0a0a;
+        --secondary: #1a1a1a;
+        --accent-blue: #00a8ff;
+        --accent-cyan: #00fff7;
+        --accent-magenta: #ff00e6;
+        --text-light: #f0f0f0;
+        --text-gray: #a0a0a0;
+        --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Montserrat", sans-serif;
+        background-color: var(--primary);
+        color: var(--text-light);
+        overflow-x: hidden;
+        line-height: 1.6;
+      }
+
+      /* Canvas and 3D Background */
+      #three-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+      }
+
+      /* Typography */
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      h1 {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(
+          90deg,
+          var(--accent-blue),
+          var(--accent-cyan)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 20px rgba(0, 168, 255, 0.3);
+      }
+
+      h2 {
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        position: relative;
+      }
+
+      h2::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(
+          90deg,
+          var(--accent-blue),
+          var(--accent-cyan)
+        );
+        border-radius: 3px;
+      }
+
+      p {
+        color: var(--text-gray);
+        margin-bottom: 1.5rem;
+      }
+
+      /* Layout */
+      section {
+        min-height: 100vh;
+        padding: 100px 5%;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      /* Hero Section */
+      .hero {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-content {
+        max-width: 700px;
+        z-index: 10;
+      }
+
+      .tagline {
+        font-size: 1.2rem;
+        color: var(--accent-cyan);
+        margin-bottom: 1.5rem;
+        text-shadow: 0 0 10px rgba(0, 255, 247, 0.5);
+      }
+
+      .subheading {
+        font-size: 1.1rem;
+        margin-bottom: 2.5rem;
+        color: var(--text-gray);
+        position: relative;
+        padding-left: 20px;
+      }
+
+      .subheading::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 10px;
+        height: 10px;
+        background-color: var(--accent-magenta);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--accent-magenta);
+      }
+
+      /* Buttons */
+      .btn {
+        display: inline-block;
+        padding: 12px 30px;
+        background: transparent;
+        color: var(--accent-blue);
+        border: 2px solid var(--accent-blue);
+        border-radius: 30px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(0, 168, 255, 0.2),
+          transparent
+        );
+        transition: left 0.7s;
+        z-index: -1;
+      }
+
+      .btn:hover {
+        color: var(--primary);
+        box-shadow: 0 0 20px var(--accent-blue);
+      }
+
+      .btn:hover::before {
+        left: 100%;
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          90deg,
+          var(--accent-blue),
+          var(--accent-cyan)
+        );
+        color: var(--primary);
+        border: none;
+      }
+
+      .btn-primary:hover {
+        box-shadow: 0 0 25px var(--accent-blue);
+        transform: translateY(-3px);
+      }
+
+      /* Cards */
+      .card {
+        background: rgba(26, 26, 26, 0.7);
+        border-radius: 15px;
+        padding: 30px;
+        transition: var(--transition);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(
+          45deg,
+          var(--accent-blue),
+          var(--accent-cyan),
+          var(--accent-magenta),
+          var(--accent-blue)
+        );
+        z-index: -1;
+        border-radius: 17px;
+        opacity: 0;
+        transition: opacity 0.5s;
+      }
+
+      .card:hover::before {
+        opacity: 1;
+      }
+
+      .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 168, 255, 0.2);
+      }
+
+      /* About Section */
+      .about-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-top: 50px;
+      }
+
+      .team-card {
+        perspective: 1000px;
+        height: 400px;
+      }
+
+      .card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+      }
+
+      .team-card:hover .card-inner {
+        transform: rotateY(180deg);
+      }
+
+      .card-front,
+      .card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        border-radius: 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 30px;
+      }
+
+      .card-back {
+        transform: rotateY(180deg);
+      }
+
+      .member-img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        margin-bottom: 20px;
+        border: 3px solid var(--accent-blue);
+        box-shadow: 0 0 20px rgba(0, 168, 255, 0.5);
+        overflow: hidden;
+      }
+      .member-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+      /* Timeline Section */
+      .timeline {
+        position: relative;
+        max-width: 1200px;
+        margin: 100px auto;
+      }
+
+      .timeline::after {
+        content: "";
+        position: absolute;
+        width: 6px;
+        background: linear-gradient(
+          to bottom,
+          var(--accent-blue),
+          var(--accent-cyan)
+        );
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        margin-left: -3px;
+        border-radius: 10px;
+      }
+
+      .timeline-item {
+        padding: 10px 40px;
+        position: relative;
+        width: 50%;
+        box-sizing: border-box;
+      }
+
+      .timeline-item:nth-child(odd) {
+        left: 0;
+      }
+
+      .timeline-item:nth-child(even) {
+        left: 50%;
+      }
+
+      .timeline-content {
+        padding: 20px 30px;
+        background: rgba(26, 26, 26, 0.7);
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        transition: var(--transition);
+        position: relative;
+        backdrop-filter: blur(10px);
+      }
+
+      .timeline-content:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 168, 255, 0.2);
+      }
+
+      .timeline-item::after {
+        content: "";
+        position: absolute;
+        width: 25px;
+        height: 25px;
+        right: -13px;
+        background-color: var(--accent-blue);
+        border: 4px solid var(--primary);
+        top: 15px;
+        border-radius: 50%;
+        z-index: 1;
+        box-shadow: 0 0 15px var(--accent-blue);
+      }
+
+      .timeline-item:nth-child(even)::after {
+        left: -12px;
+      }
+
+      /* Clients Section */
+      .clients-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 30px;
+        margin-top: 50px;
+      }
+
+      .client-logo {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 120px;
+        background: rgba(26, 26, 26, 0.7);
+        border-radius: 10px;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .client-logo::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(0, 168, 255, 0.1),
+          transparent
+        );
+        transition: left 0.7s;
+      }
+
+      .client-logo:hover {
+        transform: translateY(-10px) scale(1.05);
+        box-shadow: 0 10px 20px rgba(0, 168, 255, 0.2);
+      }
+
+      .client-logo:hover::before {
+        left: 100%;
+      }
+
+      .client-logo img {
+        max-width: 80%;
+        max-height: 60px;
+        filter: grayscale(100%) brightness(150%);
+        transition: var(--transition);
+      }
+
+      .client-logo:hover img {
+        filter: grayscale(0%) brightness(100%);
+      }
+
+      /* Services Section */
+      .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        margin-top: 50px;
+      }
+
+      .service-card {
+        text-align: center;
+        padding: 40px 20px;
+        position: relative;
+      }
+
+      .service-icon {
+        font-size: 3rem;
+        margin-bottom: 20px;
+        color: var(--accent-cyan);
+        text-shadow: 0 0 15px rgba(0, 255, 247, 0.5);
+      }
+
+      /* Modal */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s, visibility 0.3s;
+        backdrop-filter: blur(5px);
+      }
+
+      .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .modal {
+        background: var(--secondary);
+        border-radius: 15px;
+        width: 90%;
+        max-width: 500px;
+        padding: 30px;
+        position: relative;
+        transform: scale(0.8);
+        opacity: 0;
+        transition: transform 0.4s, opacity 0.4s;
+        box-shadow: 0 0 50px rgba(0, 168, 255, 0.3);
+      }
+
+      .modal-overlay.active .modal {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      .close-modal {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: none;
+        border: none;
+        color: var(--text-light);
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: var(--transition);
+        width: 30px;
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+      }
+
+      .close-modal:hover {
+        color: var(--accent-magenta);
+        background: rgba(255, 0, 230, 0.1);
+        transform: rotate(90deg);
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text-light);
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        background: rgba(10, 10, 10, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: var(--text-light);
+        transition: var(--transition);
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 10px rgba(0, 168, 255, 0.3);
+      }
+
+      .error-message {
+        color: #ff4757;
+        font-size: 0.8rem;
+        margin-top: 5px;
+        display: none;
+      }
+
+      .form-control.error {
+        border-color: #ff4757;
+        box-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
+      }
+
+      .success-message {
+        background: rgba(46, 213, 115, 0.2);
+        border: 1px solid #2ed573;
+        color: #2ed573;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      /* Animations */
+      .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.6s, transform 0.6s;
+      }
+
+      .fade-in.active {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .typewriter {
+        overflow: hidden;
+        border-right: 2px solid var(--accent-blue);
+        white-space: nowrap;
+        margin: 0 auto;
+        animation: typing 3.5s steps(40, end),
+          blink-caret 0.75s step-end infinite;
+      }
+
+      @keyframes typing {
+        from {
+          width: 0;
+        }
+        to {
+          width: 100%;
+        }
+      }
+
+      @keyframes blink-caret {
+        from,
+        to {
+          border-color: transparent;
+        }
+        50% {
+          border-color: var(--accent-blue);
+        }
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2.5rem;
+        }
+
+        h2 {
+          font-size: 2rem;
+        }
+
+        .timeline::after {
+          left: 31px;
+        }
+
+        .timeline-item {
+          width: 100%;
+          padding-left: 70px;
+          padding-right: 25px;
+        }
+
+        .timeline-item:nth-child(even) {
+          left: 0;
+        }
+
+        .timeline-item::after {
+          left: 18px;
+        }
+
+        .timeline-item:nth-child(even)::after {
+          left: 18px;
+        }
+
+        .clients-grid {
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        }
+      }
+
+      /* Particle Cursor */
+      .cursor {
+        position: fixed;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: rgba(0, 168, 255, 0.5);
+        pointer-events: none;
+        z-index: 9999;
+        mix-blend-mode: difference;
+        transition: transform 0.2s;
+      }
+
+      .cursor-follower {
+        position: fixed;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 1px solid rgba(0, 168, 255, 0.3);
+        pointer-events: none;
+        z-index: 9998;
+        transition: transform 0.6s;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 3D Canvas -->
+    <canvas id="three-canvas"></canvas>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-content">
+          <h1 class="typewriter">We'll be right back</h1>
+          <p class="tagline">
+            Our site is taking a quick pit stop. Your growth plans are safe and
+            sound.
+          </p>
+          <p class="subheading">
+            Trusted broadcast advertising agency in Delhi/NCR for 16+ years
+          </p>
+          <div style="display: flex; gap: 15px; flex-wrap: wrap">
+            <button class="btn btn-primary" onclick="window.location.reload()">
+              Try Again
+            </button>
+            <button class="btn btn-primary" id="enquire-btn">
+              Enquire Now
+            </button>
+          </div>
+          <div
+            style="margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap"
+          >
+            <a href="mailto:info@ritzmediaworld.com" class="btn">Email Us</a>
+            <a href="https://wa.me/919220516777" class="btn" target="_blank"
+              >WhatsApp Us</a
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+      <div class="container">
+        <h2>About Ritz Media World</h2>
+        <p>
+          Ritz Media World is a full-stack marketing partner blending Creative,
+          Digital, PR, and AI to turn attention into outcomes. For 15+ years
+          we've launched and scaled brands across Real Estate, Education,
+          Healthcare, and D2C—with a bias for work that's unmissable and
+          measurable.
+        </p>
+
+        <div class="about-grid">
+          <div class="team-card fade-in">
+            <div class="card-inner">
+              <div class="card-front card">
+                <div class="member-img">
+                  <img
+                    src="https://res.cloudinary.com/dsr1aulr7/image/upload/v1761632087/photo_6055558452190317453_x_1_qtitp5.jpg"
+                    alt="Ritesh Malik"
+                  />
+                </div>
+                <h3>Ritesh Malik</h3>
+                <p>Founder & CEO</p>
+              </div>
+              <div class="card-back card">
+                <h3>Ritesh Malik</h3>
+                <p>
+                  Visionary leader with a passion for transforming brands
+                  through innovative marketing strategies and cutting-edge
+                  technology.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="team-card fade-in">
+            <div class="card-inner">
+              <div class="card-front card">
+                <div class="member-img">
+                  <img
+                    src="https://res.cloudinary.com/dsr1aulr7/image/upload/v1761632087/enhanced-image_7_uk9f80.jpg"
+                    alt="Satvindar Kaur"
+                  />
+                </div>
+                <h3>Satvindar Kaur</h3>
+                <p>Co-Founder & Director</p>
+              </div>
+              <div class="card-back card">
+                <h3>Satvindar Kaur</h3>
+                <p>
+                  Driving creative excellence with an unwavering commitment to
+                  delivering campaigns that make brands unmissable.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="team-card fade-in">
+            <div class="card-inner">
+              <div class="card-front card">
+                <div class="member-img">
+                  <img
+                    src="https://res.cloudinary.com/dsr1aulr7/image/upload/v1761632369/photo_6055558452190317456_y_d9clgy.jpg"
+                    alt="Nishi Malik"
+                  />
+                </div>
+                <h3>Nishi Malik</h3>
+                <p>Co-Founder & Director</p>
+              </div>
+              <div class="card-back card">
+                <h3>Nishi Malik</h3>
+                <p>
+                  Strategic expert specializing in data-driven solutions that
+                  turn attention into measurable business outcomes.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section id="timeline">
+      <div class="container">
+        <h2>Our Journey</h2>
+        <div class="timeline">
+          <div class="timeline-item fade-in">
+            <div class="timeline-content card">
+              <h3>2008-2009</h3>
+              <p>
+                Founded with a vision to blend creativity with
+                performance-driven marketing solutions
+              </p>
+            </div>
+          </div>
+          <div class="timeline-item fade-in">
+            <div class="timeline-content card">
+              <h3>2012-2015</h3>
+              <p>
+                Expanded services into full-stack marketing including Digital,
+                PR, and Content
+              </p>
+            </div>
+          </div>
+          <div class="timeline-item fade-in">
+            <div class="timeline-content card">
+              <h3>2017-2019</h3>
+              <p>
+                Launched programs for Real Estate, Education, Healthcare, and
+                D2C verticals
+              </p>
+            </div>
+          </div>
+          <div class="timeline-item fade-in">
+            <div class="timeline-content card">
+              <h3>2020-2022</h3>
+              <p>
+                Integrated AI into campaigns for enhanced performance and
+                automation
+              </p>
+            </div>
+          </div>
+          <div class="timeline-item fade-in">
+            <div class="timeline-content card">
+              <h3>2023-2024</h3>
+              <p>
+                Became the go-to partner for unmissable and measurable brand
+                transformations
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Clients Section -->
+    <section id="clients">
+      <div class="container">
+        <h2>Need Something Now?</h2>
+        <p style="text-align: center; margin-bottom: 20px">
+          We'll send it right away—just reach out.
+        </p>
+        <div style="max-width: 800px; margin: 0 auto">
+          <div class="services-grid">
+            <div class="service-card card fade-in">
+              <h3>📋 Credentials Deck</h3>
+              <p>
+                Get our comprehensive portfolio showcasing 15+ years of
+                excellence
+              </p>
+            </div>
+            <div class="service-card card fade-in">
+              <h3>📚 Case Studies</h3>
+              <p>
+                Real results from brands we've transformed across multiple
+                verticals
+              </p>
+            </div>
+            <div class="service-card card fade-in">
+              <h3>🚀 Growth Sprint</h3>
+              <p>30-minute outline for your growth strategy</p>
+            </div>
+            <div class="service-card card fade-in">
+              <h3>📰 Press/Speaker</h3>
+              <p>Media and speaking opportunity enquiries</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+   <!-- Services Section -->
+<section id="services">
+    <div class="container">
+      <h2>Our Services</h2>
+      <div class="services-grid">
+        
+        <!-- Strategy & Planning -->
+        <div class="service-card card fade-in">
+          <div class="service-icon"><i class="fas fa-bullseye"></i></div>
+          <h3>Strategy & Planning</h3>
+          <p>ICPs, channel mix, media math, and measurement frameworks.</p>
+        </div>
+  
+        <!-- Creative & Content -->
+        <div class="service-card card fade-in">
+          <div class="service-icon"><i class="fas fa-palette"></i></div>
+          <h3>Creative & Content</h3>
+          <p>Films, statics, landing pages, motion/3D creative assets.</p>
+        </div>
+  
+        <!-- Performance Media -->
+        <div class="service-card card fade-in">
+          <div class="service-icon"><i class="fas fa-chart-line"></i></div>
+          <h3>Performance Media</h3>
+          <p>Search, Social, YouTube/OTT, and Programmatic advertising.</p>
+        </div>
+  
+        <!-- SEO & Web -->
+        <div class="service-card card fade-in">
+          <div class="service-icon"><i class="fas fa-search"></i></div>
+          <h3>SEO & Web</h3>
+          <p>People-first content, technical hygiene, and fast landing pages.</p>
+        </div>
+  
+        <!-- PR & Reputation -->
+        <div class="service-card card fade-in">
+          <div class="service-icon"><i class="fas fa-newspaper"></i></div>
+          <h3>PR & Reputation</h3>
+          <p>Thought leadership, earned stories, and online reputation management.</p>
+        </div>
+  
+        <!-- Automation & CRO -->
+        <div class="service-card card fade-in">
+          <div class="service-icon"><i class="fas fa-robot"></i></div>
+          <h3>Automation & CRO</h3>
+          <p>WhatsApp/email journeys, A/B testing, and conversion funnels.</p>
+        </div>
+  
+        <!-- Analytics -->
+        <div class="service-card card fade-in">
+          <div class="service-icon"><i class="fas fa-chart-bar"></i></div>
+          <h3>Analytics</h3>
+          <p>Dashboards mapping spend → qualified actions → revenue.</p>
+        </div>
+  
+        <!-- Print & Advertisement -->
+        <div class="service-card card fade-in">
+          <div class="service-icon"><i class="fas fa-print"></i></div>
+          <h3>Print & Advertisement</h3>
+          <p>Book Newspaper Ads Online | Best Newspaper Advertising Agency India</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+
+  
+
+   <!-- Contact Section -->
+<section id="contact">
+    <div class="container">
+      <h2>Contact Us</h2>
+      <div style="text-align: center; max-width: 600px; margin: 0 auto">
+        <p style="margin-bottom: 30px; font-size: 1.1rem">
+          Ready to talk growth? Let's connect.
+        </p>
+  
+        <div
+          class="services-grid"
+          style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))"
+        >
+          <!-- Email -->
+          <div class="service-card card fade-in">
+            <div class="service-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <h3>Email</h3>
+            <a
+              href="mailto:info@ritzmediaworld.com"
+              style="color: var(--accent-blue); text-decoration: none"
+              >info@ritzmediaworld.com</a
+            >
+          </div>
+  
+          <!-- Phone -->
+          <div class="service-card card fade-in">
+            <div class="service-icon">
+              <i class="fas fa-phone-alt"></i>
+            </div>
+            <h3>Phone</h3>
+            <a
+              href="tel:+919220516777"
+              style="color: var(--accent-blue); text-decoration: none"
+              >+91-9220516777</a
+            >
+          </div>
+  
+          <!-- WhatsApp -->
+          <div class="service-card card fade-in">
+            <div class="service-icon">
+              <i class="fab fa-whatsapp"></i>
+            </div>
+            <h3>WhatsApp</h3>
+            <a
+              href="https://wa.me/919220516777"
+              target="_blank"
+              style="color: var(--accent-blue); text-decoration: none"
+              >Chat with us</a
+            >
+          </div>
+  
+          <!-- LinkedIn -->
+          <div class="service-card card fade-in">
+            <div class="service-icon">
+              <i class="fab fa-linkedin"></i>
+            </div>
+            <h3>LinkedIn</h3>
+            <a
+              href="https://www.linkedin.com/company/ritzmediaworld/?originalSubdomain=in"
+              target="_blank"
+              style="color: var(--accent-blue); text-decoration: none"
+              >Connect with us</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+    <!-- Modal Form -->
+    <div class="modal-overlay" id="modal-overlay">
+      <div class="modal">
+        <button class="close-modal" id="close-modal">×</button>
+        <h2>Get In Touch</h2>
+        <p
+          style="
+            color: var(--text-gray);
+            margin-bottom: 20px;
+            text-align: center;
+          "
+        >
+          Status: Website temporarily unavailable. All client work and services
+          are running normally.
+        </p>
+        <div class="success-message" id="success-message">
+          Thank you for your enquiry! We'll get back to you soon.
+        </div>
+        <form id="enquiry-form">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input
+              type="text"
+              id="name"
+              class="form-control"
+              placeholder="Enter your full name"
+            />
+            <div class="error-message" id="name-error">
+              Please enter a valid name (letters only)
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input
+              type="email"
+              id="email"
+              class="form-control"
+              placeholder="Enter your email"
+            />
+            <div class="error-message" id="email-error">
+              Please enter a valid email address
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input
+              type="tel"
+              id="phone"
+              class="form-control"
+              placeholder="Enter your phone number"
+            />
+            <div class="error-message" id="phone-error">
+              Please enter a valid 10-digit phone number
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea
+              id="message"
+              class="form-control"
+              rows="4"
+              placeholder="Tell us about your project"
+            ></textarea>
+            <div class="error-message" id="message-error">
+              Message must be at least 10 characters
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%">
+            Submit Enquiry
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <script>
+      // Three.js Scene Setup
+      let scene, camera, renderer, particles, particleSystem;
+
+      function initThreeJS() {
+        // Scene setup
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(
+          75,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          1000
+        );
+        renderer = new THREE.WebGLRenderer({
+          canvas: document.getElementById("three-canvas"),
+          antialias: true,
+          alpha: true,
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Camera position
+        camera.position.z = 5;
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x222222);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0x00a8ff, 1);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+
+        const pointLight = new THREE.PointLight(0x00fff7, 1, 100);
+        pointLight.position.set(-5, -5, 5);
+        scene.add(pointLight);
+
+        // Create particle system
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 1500;
+
+        const posArray = new Float32Array(particlesCount * 3);
+        const colorArray = new Float32Array(particlesCount * 3);
+
+        for (let i = 0; i < particlesCount * 3; i++) {
+          posArray[i] = (Math.random() - 0.5) * 20;
+
+          // Create colors with neon blue/cyan/magenta
+          if (i % 3 === 0) {
+            colorArray[i] = Math.random() * 0.2 + 0.8; // R
+          } else if (i % 3 === 1) {
+            colorArray[i] = Math.random() * 0.5 + 0.5; // G
+          } else {
+            colorArray[i] = Math.random() * 0.5 + 0.5; // B
+          }
+        }
+
+        particlesGeometry.setAttribute(
+          "position",
+          new THREE.BufferAttribute(posArray, 3)
+        );
+        particlesGeometry.setAttribute(
+          "color",
+          new THREE.BufferAttribute(colorArray, 3)
+        );
+
+        const particlesMaterial = new THREE.PointsMaterial({
+          size: 0.05,
+          vertexColors: true,
+          transparent: true,
+          opacity: 0.8,
+        });
+
+        particleSystem = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particleSystem);
+
+        // Create floating geometric shapes
+        const geometry1 = new THREE.TorusGeometry(1, 0.4, 16, 100);
+        const material1 = new THREE.MeshStandardMaterial({
+          color: 0x00a8ff,
+          emissive: 0x004466,
+          metalness: 0.7,
+          roughness: 0.2,
+        });
+        const torus = new THREE.Mesh(geometry1, material1);
+        torus.position.x = -3;
+        scene.add(torus);
+
+        const geometry2 = new THREE.OctahedronGeometry(1, 0);
+        const material2 = new THREE.MeshStandardMaterial({
+          color: 0xff00e6,
+          emissive: 0x66004d,
+          metalness: 0.7,
+          roughness: 0.2,
+        });
+        const octahedron = new THREE.Mesh(geometry2, material2);
+        octahedron.position.x = 3;
+        scene.add(octahedron);
+
+        // Animation loop
+        function animate() {
+          requestAnimationFrame(animate);
+
+          // Rotate shapes
+          torus.rotation.x += 0.01;
+          torus.rotation.y += 0.005;
+
+          octahedron.rotation.x -= 0.01;
+          octahedron.rotation.y += 0.01;
+
+          // Animate particles
+          const positions = particleSystem.geometry.attributes.position.array;
+          for (let i = 0; i < positions.length; i += 3) {
+            positions[i + 1] += Math.sin(Date.now() * 0.001 + i) * 0.001;
+
+            if (positions[i + 1] > 10) {
+              positions[i + 1] = -10;
+            }
+          }
+          particleSystem.geometry.attributes.position.needsUpdate = true;
+
+          renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener("resize", () => {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+      }
+
+      // Custom Cursor
+      function initCustomCursor() {
+        const cursor = document.querySelector(".cursor");
+        const cursorFollower = document.querySelector(".cursor-follower");
+
+        document.addEventListener("mousemove", (e) => {
+          cursor.style.left = e.clientX + "px";
+          cursor.style.top = e.clientY + "px";
+
+          setTimeout(() => {
+            cursorFollower.style.left = e.clientX + "px";
+            cursorFollower.style.top = e.clientY + "px";
+          }, 100);
+        });
+
+        // Cursor effects on interactive elements
+        const interactiveElements = document.querySelectorAll(
+          "button, .card, .client-logo, a"
+        );
+
+        interactiveElements.forEach((el) => {
+          el.addEventListener("mouseenter", () => {
+            cursor.style.transform = "scale(1.5)";
+            cursorFollower.style.transform = "scale(1.5)";
+            cursor.style.background = "rgba(255, 0, 230, 0.7)";
+          });
+
+          el.addEventListener("mouseleave", () => {
+            cursor.style.transform = "scale(1)";
+            cursorFollower.style.transform = "scale(1)";
+            cursor.style.background = "rgba(0, 168, 255, 0.5)";
+          });
+        });
+      }
+
+      // Modal functionality
+      function initModal() {
+        const modalOverlay = document.getElementById("modal-overlay");
+        const enquireBtn = document.getElementById("enquire-btn");
+        const closeModal = document.getElementById("close-modal");
+        const enquiryForm = document.getElementById("enquiry-form");
+        const successMessage = document.getElementById("success-message");
+
+        // Open modal
+        enquireBtn.addEventListener("click", () => {
+          modalOverlay.classList.add("active");
+          document.body.style.overflow = "hidden";
+        });
+
+        // Close modal
+        closeModal.addEventListener("click", () => {
+          modalOverlay.classList.remove("active");
+          document.body.style.overflow = "auto";
+          resetForm();
+        });
+
+        // Close modal when clicking outside
+        modalOverlay.addEventListener("click", (e) => {
+          if (e.target === modalOverlay) {
+            modalOverlay.classList.remove("active");
+            document.body.style.overflow = "auto";
+            resetForm();
+          }
+        });
+
+        // Form validation and submission
+        enquiryForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+
+          if (validateForm()) {
+            // Get form data
+            const formData = {
+              name: document.getElementById("name").value,
+              email: document.getElementById("email").value,
+              phone: document.getElementById("phone").value,
+              message: document.getElementById("message").value,
+            };
+
+            // Send to Google Sheets (replace with your Web App URL)
+            const webAppUrl = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+            fetch(webAppUrl, {
+              method: "POST",
+              mode: "no-cors",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            })
+              .then(() => {
+                successMessage.style.display = "block";
+                enquiryForm.reset();
+
+                // Hide success message after 5 seconds
+                setTimeout(() => {
+                  successMessage.style.display = "none";
+                  modalOverlay.classList.remove("active");
+                  document.body.style.overflow = "auto";
+                }, 5000);
+              })
+              .catch(() => {
+                // Even on error, show success message since we can't detect in no-cors mode
+                successMessage.style.display = "block";
+                enquiryForm.reset();
+
+                setTimeout(() => {
+                  successMessage.style.display = "none";
+                  modalOverlay.classList.remove("active");
+                  document.body.style.overflow = "auto";
+                }, 5000);
+              });
+          }
+        });
+
+        // Form validation
+        function validateForm() {
+          let isValid = true;
+
+          // Name validation (letters only)
+          const name = document.getElementById("name");
+          const nameError = document.getElementById("name-error");
+          const nameRegex = /^[A-Za-z\s]+$/;
+
+          if (!name.value.trim() || !nameRegex.test(name.value)) {
+            name.classList.add("error");
+            nameError.style.display = "block";
+            isValid = false;
+          } else {
+            name.classList.remove("error");
+            nameError.style.display = "none";
+          }
+
+          // Email validation
+          const email = document.getElementById("email");
+          const emailError = document.getElementById("email-error");
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+          if (!email.value.trim() || !emailRegex.test(email.value)) {
+            email.classList.add("error");
+            emailError.style.display = "block";
+            isValid = false;
+          } else {
+            email.classList.remove("error");
+            emailError.style.display = "none";
+          }
+
+          // Phone validation (10 digits)
+          const phone = document.getElementById("phone");
+          const phoneError = document.getElementById("phone-error");
+          const phoneRegex = /^\d{10}$/;
+
+          if (!phone.value.trim() || !phoneRegex.test(phone.value)) {
+            phone.classList.add("error");
+            phoneError.style.display = "block";
+            isValid = false;
+          } else {
+            phone.classList.remove("error");
+            phoneError.style.display = "none";
+          }
+
+          // Message validation (min 10 characters)
+          const message = document.getElementById("message");
+          const messageError = document.getElementById("message-error");
+
+          if (!message.value.trim() || message.value.length < 10) {
+            message.classList.add("error");
+            messageError.style.display = "block";
+            isValid = false;
+          } else {
+            message.classList.remove("error");
+            messageError.style.display = "none";
+          }
+
+          return isValid;
+        }
+
+        function resetForm() {
+          enquiryForm.reset();
+          successMessage.style.display = "none";
+
+          // Clear error states
+          document.querySelectorAll(".form-control").forEach((input) => {
+            input.classList.remove("error");
+          });
+
+          document.querySelectorAll(".error-message").forEach((error) => {
+            error.style.display = "none";
+          });
+        }
+      }
+
+      // Scroll animations
+      function initScrollAnimations() {
+        const fadeElements = document.querySelectorAll(".fade-in");
+
+        const fadeInObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("active");
+              }
+            });
+          },
+          { threshold: 0.1 }
+        );
+
+        fadeElements.forEach((el) => {
+          fadeInObserver.observe(el);
+        });
+      }
+
+      // Initialize everything when DOM is loaded
+      document.addEventListener("DOMContentLoaded", () => {
+        initThreeJS();
+        initCustomCursor();
+        initModal();
+        initScrollAnimations();
+      });
+    </script>
+  </body>
+</html>
